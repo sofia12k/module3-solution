@@ -1,16 +1,29 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en" ng-app="NarrowItDownApp">
 <head>
   <title>Narrow Down Your Menu Choice</title>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
   <script src="app.js"></script>
 </head>
-<body>
-  <div ng-controller="NarrowItDownController as narrowItDown">
-    <input type="text" ng-model="narrowItDown.searchTerm" placeholder="Search term">
-    <button ng-click="narrowItDown.getMatchedMenuItems();">Narrow It Down For Me!</button>
-    <found-items found="narrowItDown.found" on-remove="narrowItDown.removeItem(index)"></found-items>
-  </div>
-</body>
-</html>
+<body ng-app="NarrowItDownApp">
+  <div class="container" ng-controller="NarrowItDownController as narrowItDown">
+    <h1>Narrow Down Your Menu Choice</h1>
 
+    <div class="form-group">
+      <input type="text" ng-model="narrowItDown.searchTerm" placeholder="Search term" class="form-control">
+      <button class="btn btn-primary" ng-click="narrowItDown.getMatchedMenuItems()">Narrow It Down For Me!</button>
+    </div>
+
+    <found-items
+      found="narrowItDown.found"
+      on-remove="narrowItDown.removeItem(index)">
+    </found-items>
+
+    <div class="emptyMessage" ng-if="narrowItDown.found.length === 0 && narrowItDown.searched">
+      Nothing found
+    </div>
+  </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <script src="app.js"></script>
+</body>
