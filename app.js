@@ -3,32 +3,38 @@
 
 angular.module('NarrowItDownApp', [])
 .controller('NarrowItDownController', NarrowItDownController)
-.service('MenuSearchService', MenuSearchService);
+.service('MenuSearchService', MenuSearchService)
+.directive('foundItems', FoundItemsDirective);
+
+function FoundItemsDirective() {
+  return {
+    restrict: 'E',
+    templateUrl: 'foundItems.html',
+    scope: {
+      found: '<',
+      onRemove: '&'
+    }
+  };
+}
 
 NarrowItDownController.$inject = ['MenuSearchService'];
 function NarrowItDownController(MenuSearchService) {
   var ctrl = this;
   ctrl.searchTerm = "";
   ctrl.found = [];
-  ctrl.errorMessage = "";
+  ctrl.nothingFound = false;
 
   ctrl.narrowItDown = function () {
-    ctrl.errorMessage = "";
-    if (!ctrl.searchTerm || ctrl.searchTerm.trim() === "") {
+    if (!ctrl.searchTerm) {
       ctrl.found = [];
-      ctrl.errorMessage = "Nothing found";
+      ctrl.nothingFound = true;
       return;
     }
 
     MenuSearchService.getMatchedMenuItems(ctrl.searchTerm)
-      .then(function (items) {
-        ctrl.found = items;
-        if (ctrl.found.length === 0) {
-          ctrl.errorMessage = "Nothing found";
-        }
-      })
-      .catch(function () {
-        ctrl.errorMessage = "Error retrieving data.";
+      .then(function (matchedItems) {
+        ctrl.found = matchedItems;
+        ctrl.nothingFound = (ctrl.found.length === 0);
       });
   };
 
@@ -42,22 +48,22 @@ function MenuSearchService($http) {
   var service = this;
 
   service.getMatchedMenuItems = function (searchTerm) {
-    return $http.get("https://coursera-jhu-default-rtdb.firebaseio.com/menu_items.json")
-      .then(function (response) {
-        var allItems = response.data; // FIXED
-        var foundItems = [];
+    return $http({
+      method: "GET",
+      url: "https://coursera-jhu-default-rtdb.firebaseio.com/menu_items.json"
+    }).then(function (result) {
+      var allItems = result.data.menu_items;
+      var found = [];
 
-        for (var i = 0; i < allItems.length; i++) {
-          var description = allItems[i].description;
-          if (description && description.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1) {
-            foundItems.push(allItems[i]);
-          }
+      for (var i = 0; i < allItems.length; i++) {
+        if (allItems[i].description.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1) {
+          found.push(allItems[i]);
         }
+      }
 
-        return foundItems;
-      });
+      return found;
+    });
   };
 }
 
 })();
-
