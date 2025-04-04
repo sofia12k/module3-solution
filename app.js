@@ -13,7 +13,8 @@ function NarrowItDownController(MenuSearchService) {
   ctrl.errorMessage = "";
 
   ctrl.narrowItDown = function () {
-    if (!ctrl.searchTerm) {
+    ctrl.errorMessage = "";
+    if (!ctrl.searchTerm || ctrl.searchTerm.trim() === "") {
       ctrl.found = [];
       ctrl.errorMessage = "Nothing found";
       return;
@@ -22,7 +23,12 @@ function NarrowItDownController(MenuSearchService) {
     MenuSearchService.getMatchedMenuItems(ctrl.searchTerm)
       .then(function (items) {
         ctrl.found = items;
-        ctrl.errorMessage = items.length === 0 ? "Nothing found" : "";
+        if (ctrl.found.length === 0) {
+          ctrl.errorMessage = "Nothing found";
+        }
+      })
+      .catch(function () {
+        ctrl.errorMessage = "Error retrieving data.";
       });
   };
 
@@ -38,12 +44,12 @@ function MenuSearchService($http) {
   service.getMatchedMenuItems = function (searchTerm) {
     return $http.get("https://coursera-jhu-default-rtdb.firebaseio.com/menu_items.json")
       .then(function (response) {
-        var allItems = response.data.menu_items;
+        var allItems = response.data; // FIXED
         var foundItems = [];
 
         for (var i = 0; i < allItems.length; i++) {
-          var description = allItems[i].description.toLowerCase();
-          if (description.indexOf(searchTerm.toLowerCase()) !== -1) {
+          var description = allItems[i].description;
+          if (description && description.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1) {
             foundItems.push(allItems[i]);
           }
         }
@@ -54,3 +60,4 @@ function MenuSearchService($http) {
 }
 
 })();
+
