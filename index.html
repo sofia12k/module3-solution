@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en" ng-app="NarrowItDownApp">
   <head>
+    <meta charset="UTF-8">
     <title>Narrow Down Menu App</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="styles/bootstrap.min.css">
@@ -22,21 +23,21 @@
       }
     </style>
   </head>
-  
-  <body>
-    <div class="container" ng-controller="NarrowItDownController as ctrl">
-      <h1>Narrow Down Your Chinese Menu Choice</h1>
+<body ng-controller="NarrowItDownController as ctrl">
+  <div class="container">
+    <h1>Narrow Down Your Chinese Menu Choice</h1>
 
-      <input type="text" ng-model="ctrl.searchTerm" placeholder="Search term">
-      <button class="btn btn-primary" ng-click="ctrl.narrowItDown()">Narrow It Down For Me!</button>
-
-      <found-items found="ctrl.found" on-remove="ctrl.removeItem(index)"></found-items>
-
-      <div class="emptyMessage" ng-if="ctrl.errorMessage">{{ ctrl.errorMessage }}</div>
+    <div class="form-group">
+      <input type="text" class="form-control" placeholder="Search term" ng-model="ctrl.searchTerm">
+      <button class="btn btn-primary mt-2" ng-click="ctrl.narrowItDown()">Narrow It Down For Me!</button>
     </div>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
-    <script src="app.js"></script>
-    <script src="foundItems.directive.js"></script>
-  </body>
+    <found-items found="ctrl.found" on-remove="ctrl.removeItem(index)"></found-items>
+
+    <div class="emptyMessage" ng-if="ctrl.nothingFound">Nothing found</div>
+  </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <script src="app.js"></script>
+</body>
 </html>
