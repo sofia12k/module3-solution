@@ -1,7 +1,7 @@
-<ul class="list-group">
-  <li class="list-group-item" ng-repeat="item in found">
-    <strong>{{ item.name }}</strong> ({{ item.short_name }}) - {{ item.description }}
-    <button class="btn btn-danger btn-sm float-end" ng-click="onRemove({ index: $index })">
+<ul>
+  <li ng-repeat="item in found">
+    {{ item.name }} ({{ item.short_name }}) - {{ item.description }}
+    <button class="btn btn-danger btn-sm" ng-click="onRemove({index: $index})">
       Remove
     </button>
   </li>
