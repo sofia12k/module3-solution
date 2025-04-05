@@ -6,18 +6,11 @@ angular.module('NarrowItDownApp', [])
 .service('MenuSearchService', MenuSearchService)
 .directive('foundItems', FoundItemsDirective);
 
+// ---------- Directive ----------
 function FoundItemsDirective() {
   var ddo = {
     restrict: 'E',
-    template:
-      '<ul>' +
-        '<li ng-repeat="item in found">' +
-          '{{ item.name }} ({{ item.short_name }}) - {{ item.description }}' +
-          ' <button class="btn btn-danger btn-sm" ng-click="onRemove({index: $index})">' +
-            'Remove' +
-          '</button>' +
-        '</li>' +
-      '</ul>',
+    templateUrl: 'foundItems.html',
     scope: {
       found: '<',
       onRemove: '&'
@@ -26,31 +19,34 @@ function FoundItemsDirective() {
   return ddo;
 }
 
+// ---------- Controller ----------
 NarrowItDownController.$inject = ['MenuSearchService'];
 function NarrowItDownController(MenuSearchService) {
-  var narrowItDown = this;
-  narrowItDown.searchTerm = "";
-  narrowItDown.found = [];
-  narrowItDown.searched = false;
+  var ctrl = this;
 
-  narrowItDown.getMatchedMenuItems = function () {
-    narrowItDown.searched = true;
-    if (!narrowItDown.searchTerm.trim()) {
-      narrowItDown.found = [];
+  ctrl.searchTerm = '';
+  ctrl.found = [];
+  ctrl.searched = false;
+
+  ctrl.getMatchedMenuItems = function () {
+    ctrl.searched = true;
+    if (!ctrl.searchTerm || ctrl.searchTerm.trim() === '') {
+      ctrl.found = [];
       return;
     }
 
-    MenuSearchService.getMatchedMenuItems(narrowItDown.searchTerm)
-      .then(function (foundItems) {
-        narrowItDown.found = foundItems;
-      });
+    MenuSearchService.getMatchedMenuItems(ctrl.searchTerm)
+    .then(function (foundItems) {
+      ctrl.found = foundItems;
+    });
   };
 
-  narrowItDown.removeItem = function (index) {
-    narrowItDown.found.splice(index, 1);
+  ctrl.removeItem = function (itemIndex) {
+    ctrl.found.splice(itemIndex, 1);
   };
 }
 
+// ---------- Service ----------
 MenuSearchService.$inject = ['$http'];
 function MenuSearchService($http) {
   var service = this;
@@ -59,17 +55,18 @@ function MenuSearchService($http) {
     return $http({
       method: 'GET',
       url: 'https://coursera-jhu-default-rtdb.firebaseio.com/menu_items.json'
-    }).then(function (result) {
-      var allItems = [];
-      for (var category in result.data) {
-        allItems = allItems.concat(result.data[category].menu_items);
+    }).then(function (response) {
+      var allItems = response.data.menu_items;
+      var foundItems = [];
+
+      for (var i = 0; i < allItems.length; i++) {
+        var item = allItems[i];
+        if (item.description.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1) {
+          foundItems.push(item);
+        }
       }
 
-      var found = allItems.filter(function (item) {
-        return item.description.toLowerCase().includes(searchTerm.toLowerCase());
-      });
-
-      return found;
+      return foundItems;
     });
   };
 }
