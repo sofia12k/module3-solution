@@ -3,31 +3,50 @@
 
 angular.module('NarrowItDownApp', [])
 .controller('NarrowItDownController', NarrowItDownController)
-.service('MenuSearchService', MenuSearchService);
+.service('MenuSearchService', MenuSearchService)
+.directive('foundItems', FoundItemsDirective);
+
+function FoundItemsDirective() {
+  var ddo = {
+    restrict: 'E',
+    templateUrl: 'foundItems.html',
+    scope: {
+      found: '<',
+      onRemove: '&'
+    }
+  };
+  return ddo;
+}
 
 NarrowItDownController.$inject = ['MenuSearchService'];
 function NarrowItDownController(MenuSearchService) {
-  var narrowItDown = this;
-  narrowItDown.searchTerm = "";
-  narrowItDown.found = [];
+  var ctrl = this;
+  ctrl.searchTerm = '';
+  ctrl.found = [];
+  ctrl.nothingFound = false;
 
-  narrowItDown.getMatchedMenuItems = function () {
-    if (narrowItDown.searchTerm.trim() === "") {
-      narrowItDown.found = [];
+  ctrl.narrowItDown = function () {
+    ctrl.nothingFound = false;
+    if (!ctrl.searchTerm || ctrl.searchTerm.trim() === '') {
+      ctrl.found = [];
+      ctrl.nothingFound = true;
       return;
     }
 
-    var promise = MenuSearchService.getMatchedMenuItems(narrowItDown.searchTerm);
-    promise.then(function (response) {
-      narrowItDown.found = response;
-    })
-    .catch(function (error) {
-      console.log("Something went wrong.");
-    });
+    MenuSearchService.getMatchedMenuItems(ctrl.searchTerm)
+      .then(function (foundItems) {
+        ctrl.found = foundItems;
+        ctrl.nothingFound = foundItems.length === 0;
+      })
+      .catch(function (error) {
+        console.error(error);
+        ctrl.found = [];
+        ctrl.nothingFound = true;
+      });
   };
 
-  narrowItDown.removeItem = function (itemIndex) {
-    narrowItDown.found.splice(itemIndex, 1);
+  ctrl.removeItem = function (index) {
+    ctrl.found.splice(index, 1);
   };
 }
 
@@ -37,21 +56,22 @@ function MenuSearchService($http) {
 
   service.getMatchedMenuItems = function (searchTerm) {
     return $http({
-      method: "GET",
-      url: "https://coursera-jhu-default-rtdb.firebaseio.com/menu_items.json"
+      method: 'GET',
+      url: 'https://coursera-jhu-default-rtdb.firebaseio.com/menu_items.json'
     }).then(function (response) {
-      var allItems = [];
-      for (var category in response.data) {
-        allItems = allItems.concat(response.data[category].menu_items);
+      var allItems = response.data.menu_items;
+      var matchedItems = [];
+
+      for (var i = 0; i < allItems.length; i++) {
+        var item = allItems[i];
+        if (item.description.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1) {
+          matchedItems.push(item);
+        }
       }
-      var foundItems = allItems.filter(function (item) {
-        return item.description.toLowerCase().includes(searchTerm.toLowerCase());
-      });
-      return foundItems;
+      return matchedItems;
     });
   };
 }
 
 })();
-
 
