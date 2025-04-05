@@ -1,38 +1,46 @@
 <!DOCTYPE html>
 <html lang="en" ng-app="NarrowItDownApp">
-<head>
-  <meta charset="UTF-8">
-  <title>Narrow Down Your Menu Choice</title>
-  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
-  <script src="app.js"></script>
-  <style>
-    .emptyMessage {
-      font-weight: bold;
-      color: red;
-      font-size: 1.2em;
-    }
-    .form-group {
-      margin-bottom: 15px;
-    }
-  </style>
-</head>
-<body>
-  <div class="container" ng-controller="NarrowItDownController as narrowItDown">
-    <h1>Narrow Down Your Menu Choice</h1>
+  <head>
+    <title>Narrow It Down</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="styles/bootstrap.min.css">
+    <style>
+      .emptyMessage {
+        font-weight: bold;
+        color: red;
+        font-size: 1.2em;
+        margin-top: 20px;
+      }
+      li {
+        margin-bottom: 7px;
+        font-size: 1.2em;
+      }
+      li > button {
+        margin-left: 6px;
+      }
+      .loader {
+        font-size: 1.5em;
+        color: gray;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container" ng-controller="NarrowItDownController as narrowItDown">
+      <h1>Narrow Down Your Menu Choice</h1>
 
-    <div class="form-group">
-      <input type="text" ng-model="narrowItDown.searchTerm" placeholder="Search term" class="form-control">
+      <div class="form-group">
+        <input type="text" class="form-control" placeholder="search term" ng-model="narrowItDown.searchTerm">
+      </div>
       <button class="btn btn-primary" ng-click="narrowItDown.getMatchedMenuItems()">Narrow It Down For Me!</button>
+
+      <div ng-if="narrowItDown.searched && narrowItDown.found.length === 0" class="emptyMessage">
+        Nothing found
+      </div>
+
+      <found-items found="narrowItDown.found" on-remove="narrowItDown.removeItem(index)"></found-items>
     </div>
 
-    <found-items
-      found="narrowItDown.found"
-      on-remove="narrowItDown.removeItem(index)">
-    </found-items>
-
-    <div class="emptyMessage" ng-if="narrowItDown.found.length === 0 && narrowItDown.searched">
-      Nothing found
-    </div>
-  </div>
-</body>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <script src="app.js"></script>
+  </body>
 </html>
