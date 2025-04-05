@@ -60,7 +60,7 @@
         onRemove: '&'
       },
       template:
-        `<ul class="list-group mt-3">
+        `<ul class="list-group mt-3" ng-if="foundItems.length > 0">
           <li class="list-group-item d-flex justify-content-between align-items-start"
               ng-repeat="item in foundItems track by $index">
             <div>
@@ -77,3 +77,4 @@
   }
 
 })();
+
