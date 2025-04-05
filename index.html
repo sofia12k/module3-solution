@@ -44,8 +44,8 @@
     <!-- Loading message -->
     <div class="loader" ng-if="narrowItDown.loading">Loading...</div>
 
-    <!-- Nothing found message -->
-    <div class="emptyMessage" ng-if="narrowItDown.searched && !narrowItDown.loading && narrowItDown.found.length === 0">
+    <!-- Nothing found message (only show after loading is done AND searched flag is true) -->
+    <div class="emptyMessage" ng-if="!narrowItDown.loading && narrowItDown.searched && narrowItDown.found.length === 0">
       Nothing found
     </div>
 
