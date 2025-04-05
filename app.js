@@ -6,7 +6,7 @@ angular.module('NarrowItDownApp', [])
 .service('MenuSearchService', MenuSearchService)
 .directive('foundItems', FoundItemsDirective);
 
-// ---------- Directive ----------
+// Directive
 function FoundItemsDirective() {
   var ddo = {
     restrict: 'E',
@@ -19,7 +19,7 @@ function FoundItemsDirective() {
   return ddo;
 }
 
-// ---------- Controller ----------
+// Controller
 NarrowItDownController.$inject = ['MenuSearchService'];
 function NarrowItDownController(MenuSearchService) {
   var ctrl = this;
@@ -27,12 +27,15 @@ function NarrowItDownController(MenuSearchService) {
   ctrl.searchTerm = '';
   ctrl.found = [];
   ctrl.searched = false;
+  ctrl.loading = false;
 
   ctrl.getMatchedMenuItems = function () {
+    ctrl.found = [];
     ctrl.searched = false;
+    ctrl.loading = true;
 
     if (!ctrl.searchTerm || ctrl.searchTerm.trim() === '') {
-      ctrl.found = [];
+      ctrl.loading = false;
       ctrl.searched = true;
       return;
     }
@@ -40,6 +43,7 @@ function NarrowItDownController(MenuSearchService) {
     MenuSearchService.getMatchedMenuItems(ctrl.searchTerm)
     .then(function (foundItems) {
       ctrl.found = foundItems;
+      ctrl.loading = false;
       ctrl.searched = true;
     });
   };
@@ -49,23 +53,22 @@ function NarrowItDownController(MenuSearchService) {
   };
 }
 
-// ---------- Service ----------
+// Service
 MenuSearchService.$inject = ['$http'];
 function MenuSearchService($http) {
   var service = this;
 
   service.getMatchedMenuItems = function (searchTerm) {
     return $http({
-      method: 'GET',
-      url: 'https://coursera-jhu-default-rtdb.firebaseio.com/menu_items.json'
-    }).then(function (response) {
-      var allItems = response.data.menu_items;
+      method: "GET",
+      url: "https://coursera-jhu-default-rtdb.firebaseio.com/menu_items.json"
+    }).then(function (result) {
+      var allItems = result.data.menu_items;
       var foundItems = [];
 
       for (var i = 0; i < allItems.length; i++) {
-        var item = allItems[i];
-        if (item.description.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1) {
-          foundItems.push(item);
+        if (allItems[i].description.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1) {
+          foundItems.push(allItems[i]);
         }
       }
 
@@ -75,4 +78,3 @@ function MenuSearchService($http) {
 }
 
 })();
-
