@@ -6,7 +6,6 @@ angular.module('NarrowItDownApp', [])
 .service('MenuSearchService', MenuSearchService)
 .directive('foundItems', FoundItemsDirective);
 
-// Directive
 function FoundItemsDirective() {
   var ddo = {
     restrict: 'E',
@@ -19,44 +18,42 @@ function FoundItemsDirective() {
   return ddo;
 }
 
-// Controller
 NarrowItDownController.$inject = ['MenuSearchService'];
 function NarrowItDownController(MenuSearchService) {
   var ctrl = this;
-
   ctrl.searchTerm = '';
   ctrl.found = [];
-  ctrl.searched = false;
   ctrl.loading = false;
+  ctrl.searched = false;
 
   ctrl.getMatchedMenuItems = function () {
+    var term = ctrl.searchTerm.trim();
     ctrl.found = [];
     ctrl.searched = false;
-    ctrl.loading = true;
 
-    var trimmedTerm = ctrl.searchTerm ? ctrl.searchTerm.trim() : '';
-    if (trimmedTerm === '') {
-      ctrl.loading = false;
+    if (term === '') {
       ctrl.found = [];
+      ctrl.searched = true;
       return;
     }
 
-    MenuSearchService.getMatchedMenuItems(trimmedTerm)
-    .then(function (foundItems) {
-      ctrl.found = foundItems;
-    })
-    .finally(function () {
-      ctrl.loading = false;
-      ctrl.searched = true;
-    });
+    ctrl.loading = true;
+
+    MenuSearchService.getMatchedMenuItems(term)
+      .then(function (items) {
+        ctrl.found = items;
+      })
+      .finally(function () {
+        ctrl.loading = false;
+        ctrl.searched = true;
+      });
   };
 
-  ctrl.removeItem = function (itemIndex) {
-    ctrl.found.splice(itemIndex, 1);
+  ctrl.removeItem = function (index) {
+    ctrl.found.splice(index, 1);
   };
 }
 
-// Service
 MenuSearchService.$inject = ['$http'];
 function MenuSearchService($http) {
   var service = this;
@@ -65,19 +62,21 @@ function MenuSearchService($http) {
     return $http({
       method: "GET",
       url: "https://coursera-jhu-default-rtdb.firebaseio.com/menu_items.json"
-    }).then(function (result) {
-      var allItems = result.data.menu_items;
-      var foundItems = [];
+    }).then(function (response) {
+      var allItems = response.data.menu_items;
+      var matched = [];
 
       for (var i = 0; i < allItems.length; i++) {
-        if (allItems[i].description.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1) {
-          foundItems.push(allItems[i]);
+        var description = allItems[i].description.toLowerCase();
+        if (description.indexOf(searchTerm.toLowerCase()) !== -1) {
+          matched.push(allItems[i]);
         }
       }
 
-      return foundItems;
+      return matched;
     });
   };
 }
 
 })();
+
