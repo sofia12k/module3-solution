@@ -1,11 +1,22 @@
 <!DOCTYPE html>
 <html lang="en" ng-app="NarrowItDownApp">
 <head>
+  <meta charset="UTF-8">
   <title>Narrow Down Your Menu Choice</title>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
   <script src="app.js"></script>
+  <style>
+    .emptyMessage {
+      font-weight: bold;
+      color: red;
+      font-size: 1.2em;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+  </style>
 </head>
-<body ng-app="NarrowItDownApp">
+<body>
   <div class="container" ng-controller="NarrowItDownController as narrowItDown">
     <h1>Narrow Down Your Menu Choice</h1>
 
@@ -23,7 +34,5 @@
       Nothing found
     </div>
   </div>
-
-  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
-  <script src="app.js"></script>
 </body>
+</html>
