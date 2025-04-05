@@ -10,7 +10,7 @@
   <body>
 
     <div class="container" ng-controller="NarrowItDownController as ctrl">
-      <h1>Narrow Down Your Chinese Menu Choice</h1>
+      <h1 class="mt-4 mb-3">Narrow Down Your Chinese Menu Choice</h1>
 
       <div class="form-group">
         <input type="text"
@@ -20,7 +20,7 @@
       </div>
 
       <div class="form-group narrow-button">
-        <button class="btn btn-primary" ng-click="ctrl.narrowDown()">Narrow It Down For Me!</button>
+        <button class="btn btn-primary mt-2" ng-click="ctrl.narrowDown()">Narrow It Down For Me!</button>
       </div>
 
       <found-items
@@ -28,7 +28,7 @@
         on-remove="ctrl.removeItem(index)">
       </found-items>
 
-      <div ng-if="ctrl.nothingFound">
+      <div ng-if="ctrl.nothingFound" class="mt-3">
         <p><strong>Nothing found</strong></p>
       </div>
     </div>
