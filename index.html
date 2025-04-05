@@ -1,83 +1,40 @@
-(function () {
-  'use strict';
+<!doctype html>
+<html lang="en" ng-app="NarrowItDownApp">
+  <head>
+    <meta charset="utf-8">
+    <title>Narrow Down Your Menu Choice</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="styles/styles.css">
+  </head>
+  <body>
 
-  angular.module('NarrowItDownApp', [])
-    .controller('NarrowItDownController', NarrowItDownController)
-    .service('MenuSearchService', MenuSearchService)
-    .directive('foundItems', FoundItemsDirective);
+    <div class="container" ng-controller="NarrowItDownController as ctrl">
+      <h1>Narrow Down Your Chinese Menu Choice</h1>
 
-  // === Controller ===
-  NarrowItDownController.$inject = ['MenuSearchService'];
-  function NarrowItDownController(MenuSearchService) {
-    var ctrl = this;
-    ctrl.searchTerm = '';
-    ctrl.found = [];
-    ctrl.nothingFound = false;
+      <div class="form-group">
+        <input type="text"
+               placeholder="search term"
+               class="form-control"
+               ng-model="ctrl.searchTerm">
+      </div>
 
-    ctrl.narrowDown = function () {
-      var term = ctrl.searchTerm.trim();
-      if (!term) {
-        ctrl.found = [];
-        ctrl.nothingFound = true;
-        return;
-      }
+      <div class="form-group narrow-button">
+        <button class="btn btn-primary" ng-click="ctrl.narrowDown()">Narrow It Down For Me!</button>
+      </div>
 
-      MenuSearchService.getMatchedMenuItems(term)
-        .then(function (items) {
-          console.log("Found items: ", items);  // Log to verify items
-          ctrl.found = items;
-          ctrl.nothingFound = items.length === 0;
-        });
-    };
+      <found-items
+        found-items="ctrl.found"
+        on-remove="ctrl.removeItem(index)">
+      </found-items>
 
-    ctrl.removeItem = function (index) {
-      ctrl.found.splice(index, 1);
-    };
-  }
+      <div ng-if="ctrl.nothingFound">
+        <p><strong>Nothing found</strong></p>
+      </div>
 
-  // === Service ===
-  MenuSearchService.$inject = ['$http'];
-  function MenuSearchService($http) {
-    var service = this;
+    </div>
 
-    service.getMatchedMenuItems = function (searchTerm) {
-      return $http.get('https://coursera-jhu-default-rtdb.firebaseio.com/menu_items.json')
-        .then(function (response) {
-          console.log("HTTP Response: ", response);  // Log to inspect the response
-          var allItems = response.data.menu_items;
-          var foundItems = allItems.filter(function (item) {
-            return item.description.toLowerCase().includes(searchTerm.toLowerCase());
-          });
-          return foundItems;
-        }).catch(function (error) {
-          console.error("Error retrieving menu items:", error);
-        });
-    };
-  }
-
-  // === Directive ===
-  function FoundItemsDirective() {
-    return {
-      restrict: 'E',
-      scope: {
-        foundItems: '<',
-        onRemove: '&'
-      },
-      template:
-        `<ul class="list-group mt-3" ng-if="foundItems.length > 0">
-          <li class="list-group-item d-flex justify-content-between align-items-start"
-              ng-repeat="item in foundItems track by $index">
-            <div>
-              <strong>{{ item.name }}</strong> ({{ item.short_name }})<br>
-              <small>{{ item.description }}</small>
-            </div>
-            <button class="btn btn-danger btn-sm"
-                    ng-click="onRemove({index: $index})">
-              Don't want this one!
-            </button>
-          </li>
-        </ul>`
-    };
-  }
-
-})();
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
