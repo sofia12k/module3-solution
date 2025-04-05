@@ -34,15 +34,18 @@ function NarrowItDownController(MenuSearchService) {
     ctrl.searched = false;
     ctrl.loading = true;
 
-    if (!ctrl.searchTerm || ctrl.searchTerm.trim() === '') {
+    var trimmedTerm = ctrl.searchTerm ? ctrl.searchTerm.trim() : '';
+    if (trimmedTerm === '') {
       ctrl.loading = false;
-      ctrl.searched = true;
+      ctrl.found = [];
       return;
     }
 
-    MenuSearchService.getMatchedMenuItems(ctrl.searchTerm)
+    MenuSearchService.getMatchedMenuItems(trimmedTerm)
     .then(function (foundItems) {
       ctrl.found = foundItems;
+    })
+    .finally(function () {
       ctrl.loading = false;
       ctrl.searched = true;
     });
