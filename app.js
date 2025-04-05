@@ -6,14 +6,16 @@
     .service('MenuSearchService', MenuSearchService)
     .directive('foundItems', FoundItemsDirective);
 
-  // === Controller ===
+  // Controller Definition
   NarrowItDownController.$inject = ['MenuSearchService'];
   function NarrowItDownController(MenuSearchService) {
     var ctrl = this;
     ctrl.searchTerm = '';
     ctrl.found = [];
     ctrl.nothingFound = false;
+    ctrl.loading = false; // To track the loading state
 
+    // Function to narrow down menu items
     ctrl.narrowDown = function () {
       var term = ctrl.searchTerm.trim();
       if (!term) {
@@ -22,19 +24,25 @@
         return;
       }
 
+      ctrl.loading = true; // Show loader while waiting for response
+
       MenuSearchService.getMatchedMenuItems(term)
         .then(function (items) {
           ctrl.found = items;
           ctrl.nothingFound = items.length === 0;
+        })
+        .finally(function () {
+          ctrl.loading = false; // Hide loader when the data is ready
         });
     };
 
+    // Function to remove an item from the found list
     ctrl.removeItem = function (index) {
       ctrl.found.splice(index, 1);
     };
   }
 
-  // === Service ===
+  // Service to retrieve menu items from Firebase and filter them based on search term
   MenuSearchService.$inject = ['$http'];
   function MenuSearchService($http) {
     var service = this;
@@ -51,7 +59,7 @@
     };
   }
 
-  // === Directive ===
+  // Directive to display the found items
   function FoundItemsDirective() {
     return {
       restrict: 'E',
@@ -59,16 +67,15 @@
         foundItems: '<',
         onRemove: '&'
       },
-      template:
-        `<ul class="list-group mt-3" ng-if="foundItems.length > 0">
+      template: `
+        <ul class="list-group mt-3" ng-if="foundItems.length > 0">
           <li class="list-group-item d-flex justify-content-between align-items-start"
               ng-repeat="item in foundItems track by $index">
             <div>
               <strong>{{ item.name }}</strong> ({{ item.short_name }})<br>
               <small>{{ item.description }}</small>
             </div>
-            <button class="btn btn-danger btn-sm"
-                    ng-click="onRemove({index: $index})">
+            <button class="btn btn-danger btn-sm" ng-click="onRemove({index: $index})">
               Don't want this one!
             </button>
           </li>
@@ -77,4 +84,3 @@
   }
 
 })();
-
