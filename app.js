@@ -4,52 +4,38 @@
 angular.module('NarrowItDownApp', [])
 .controller('NarrowItDownController', NarrowItDownController)
 .service('MenuSearchService', MenuSearchService)
-.directive('foundItems', FoundItemsDirective);
+.directive('foundItems', FoundItemsDirective)
+.directive('itemsLoaderIndicator', LoaderIndicatorDirective);
 
-// Directive
-function FoundItemsDirective() {
-  return {
-    restrict: 'E',
-    templateUrl: 'foundItems.html',
-    scope: {
-      found: '<',
-      onRemove: '&'
-    }
-  };
-}
-
-// Controller
+// Main controller
 NarrowItDownController.$inject = ['MenuSearchService'];
 function NarrowItDownController(MenuSearchService) {
-  var ctrl = this;
+  var narrowItDown = this;
 
-  ctrl.searchTerm = '';
-  ctrl.found = [];
-  ctrl.searched = false;
-  ctrl.loading = false;
+  narrowItDown.searchTerm = "";
+  narrowItDown.found = [];
+  narrowItDown.searched = false;
+  narrowItDown.loading = false;
 
-  ctrl.getMatchedMenuItems = function () {
-    ctrl.found = [];
-    ctrl.searched = true;
-    ctrl.loading = true;
+  narrowItDown.getMatchedMenuItems = function () {
+    narrowItDown.searched = true;
+    narrowItDown.loading = true;
 
-    var trimmedTerm = ctrl.searchTerm.trim();
-    if (!trimmedTerm) {
-      ctrl.loading = false;
+    if (!narrowItDown.searchTerm) {
+      narrowItDown.found = [];
+      narrowItDown.loading = false;
       return;
     }
 
-    MenuSearchService.getMatchedMenuItems(trimmedTerm)
+    MenuSearchService.getMatchedMenuItems(narrowItDown.searchTerm)
       .then(function (foundItems) {
-        ctrl.found = foundItems;
-      })
-      .finally(function () {
-        ctrl.loading = false;
+        narrowItDown.found = foundItems;
+        narrowItDown.loading = false;
       });
   };
 
-  ctrl.removeItem = function (index) {
-    ctrl.found.splice(index, 1);
+  narrowItDown.removeItem = function (index) {
+    narrowItDown.found.splice(index, 1);
   };
 }
 
@@ -63,14 +49,38 @@ function MenuSearchService($http) {
       method: "GET",
       url: "https://coursera-jhu-default-rtdb.firebaseio.com/menu_items.json"
     }).then(function (response) {
-      var menuItems = response.data.menu_items || [];
-      var foundItems = menuItems.filter(function (item) {
-        return item.description.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1;
-      });
+      var foundItems = [];
+      var items = response.data.menu_items;
+
+      for (var i = 0; i < items.length; i++) {
+        var description = items[i].description.toLowerCase();
+        if (description.indexOf(searchTerm.toLowerCase()) !== -1) {
+          foundItems.push(items[i]);
+        }
+      }
       return foundItems;
     });
   };
 }
 
-})();
+// found-items directive
+function FoundItemsDirective() {
+  var ddo = {
+    templateUrl: 'foundItems.html',
+    scope: {
+      found: '<',
+      onRemove: '&'
+    }
+  };
+  return ddo;
+}
 
+// loader directive
+function LoaderIndicatorDirective() {
+  var ddo = {
+    templateUrl: 'itemsloaderindicator.template.html'
+  };
+  return ddo;
+}
+
+})();
