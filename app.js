@@ -15,13 +15,14 @@
     ctrl.nothingFound = false;
 
     ctrl.narrowDown = function () {
-      if (!ctrl.searchTerm) {
+      var term = ctrl.searchTerm.trim();
+      if (!term) {
         ctrl.found = [];
         ctrl.nothingFound = true;
         return;
       }
 
-      MenuSearchService.getMatchedMenuItems(ctrl.searchTerm)
+      MenuSearchService.getMatchedMenuItems(term)
         .then(function (items) {
           ctrl.found = items;
           ctrl.nothingFound = items.length === 0;
@@ -58,14 +59,20 @@
         foundItems: '<',
         onRemove: '&'
       },
-      template: `
-        <ul class="list-group">
-          <li class="list-group-item" ng-repeat="item in foundItems track by $index">
-            {{ item.name }}, {{ item.short_name }}, {{ item.description }}
-            <button class="btn btn-danger btn-sm float-end" ng-click="onRemove({index: $index})">Don't want this one!</button>
+      template:
+        `<ul class="list-group mt-3">
+          <li class="list-group-item d-flex justify-content-between align-items-start"
+              ng-repeat="item in foundItems track by $index">
+            <div>
+              <strong>{{ item.name }}</strong> ({{ item.short_name }})<br>
+              <small>{{ item.description }}</small>
+            </div>
+            <button class="btn btn-danger btn-sm"
+                    ng-click="onRemove({index: $index})">
+              Don't want this one!
+            </button>
           </li>
-        </ul>
-      `
+        </ul>`
     };
   }
 
