@@ -29,15 +29,18 @@ function NarrowItDownController(MenuSearchService) {
   ctrl.searched = false;
 
   ctrl.getMatchedMenuItems = function () {
-    ctrl.searched = true;
+    ctrl.searched = false;
+
     if (!ctrl.searchTerm || ctrl.searchTerm.trim() === '') {
       ctrl.found = [];
+      ctrl.searched = true;
       return;
     }
 
     MenuSearchService.getMatchedMenuItems(ctrl.searchTerm)
     .then(function (foundItems) {
       ctrl.found = foundItems;
+      ctrl.searched = true;
     });
   };
 
@@ -72,3 +75,4 @@ function MenuSearchService($http) {
 }
 
 })();
+
